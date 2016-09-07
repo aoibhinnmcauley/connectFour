@@ -1,0 +1,39 @@
+{"frames": {
+
+"4connectBG.png":
+{
+	"frame": {"x":0,"y":0,"w":492,"h":423},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":492,"h":423},
+	"sourceSize": {"w":492,"h":423},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"arrow.png":
+{
+	"frame": {"x":0,"y":423,"w":70,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":70,"h":60},
+	"sourceSize": {"w":70,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"checker.png":
+{
+	"frame": {"x":70,"y":423,"w":67,"h":73},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":67,"h":73},
+	"sourceSize": {"w":67,"h":73},
+	"pivot": {"x":0.5,"y":0.5}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "spriteSheet.png",
+	"format": "RGBA8888",
+	"size": {"w":492,"h":496},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:df18d317139f5e934ece297f794d35cc:f687eb3ab1a469a5a6d9f7454ddda981:ea5d22e715ea7a530878e244f6ee1006$"
+}
+}
