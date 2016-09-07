@@ -32,41 +32,26 @@ var countCheckers = 0;
 
 //Styles the text displayed on screen
 var TextDefualtStyle = {
-    font : 'bold italic 32px Arial',
+    font : 'bold 32px',
     fill : '#F7EDCA',
     stroke : '#4a1850',
     strokeThickness : 5,
-    dropShadow : true,
-    dropShadowColor : '#000000',
-    dropShadowAngle : Math.PI / 6,
-    dropShadowDistance : 6,
     wordWrap: true,
-    wordWrapWidth: 520
+    wordWrapWidth: 510
 };
 
-//Styles the text displayed on screen
 var TextYellowStyle = {
-    font: 'bold italic 32px Arial',
+    font: 'bold 32px',
     fill: '#ffff00',
     stroke: '#4a1850',
-    strokeThickness: 5,
-    dropShadow: true,
-    dropShadowColor: '#000000',
-    dropShadowAngle: Math.PI / 6,
-    dropShadowDistance: 6,
+    strokeThickness: 5
 };
 
-//Styles the text displayed on screen
 var TextRedStyle = {
-    font: 'bold italic 32px Arial',
+    font: 'bold 32px',
     fill: '#ff0000',
     stroke: '#4a1850',
-    strokeThickness: 5,
-    dropShadow: true,
-    dropShadowColor: '#000000',
-    dropShadowAngle: Math.PI / 6,
-    dropShadowDistance: 6,
-    wordWrap: false,
+    strokeThickness: 5
 };
 
 //Create a Pixi stage, renderer and add the 
@@ -111,17 +96,28 @@ function gameLoop() {
     
   //Render the stage to see the animation
   renderer.render(stage);
+
+  //Auto resize the screen     
+  window.onresize = function (event) {
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      //this part resizes the canvas but keeps ratio the same   
+      renderer.view.style.width = w + "px";    
+      renderer.view.style.height = h + "px";    
+      //this part adjusts the ratio:    
+      renderer.resize(w, h);
+  }
 }
 
 function displayText()
 {
     //Header text
-    headerText = new PIXI.Text('Welcome to connect four! Play using left, right and space! ', TextDefualtStyle);
+    headerText = new PIXI.Text('Welcome to connect four! Play using the left, right and space keys! ', TextDefualtStyle);
     headerText.x = (screen.width / 2) - (gridImage.width / 2);
     headerText.y = 10;
     stage.addChild(headerText);
 
-    //Display who's turn it currently is
+    //Display who's turn it currently is in the right color
     turnTextYellow = new PIXI.Text("Its yellow's turn!", TextYellowStyle);
     turnTextYellow.x = (screen.width / 2) - (gridImage.width / 2);
     turnTextYellow.y = 80;
@@ -134,7 +130,7 @@ function displayText()
     stage.addChild(turnTextRed)
 
     //Game over text
-    gameOverText = new PIXI.Text('Game over press ESC to replay!', TextDefualtStyle);
+    gameOverText = new PIXI.Text('You connected four! Press ESC to replay!', TextDefualtStyle);
     gameOverText.position.set((screen.width / 2) - (gridImage.width / 2),120);
     gameOverText.visible = false;
     stage.addChild(gameOverText);
@@ -144,7 +140,8 @@ function displayText()
 
 function updateTurnText(color)
 {
-    if (gameOver == false) {
+    if (gameOver == false) 
+    {
         if (color == "red") {
             turnTextYellow.visible = false;
             turnTextRed.visible = true;
@@ -164,7 +161,7 @@ function createGrid() {
     for (let i = 0; i < maxRow; i++) {
         boardArray[i] = new Array();
 
-        for (j = 0; j < maxCol; j++) {
+        for (let j = 0; j < maxCol; j++) {
             var s = new slot("null", null);
             s.sprite = new Sprite(id["checker.png"]);
             boardArray[i][j] = s;
@@ -217,42 +214,49 @@ function checkKey(e) {
 
     }
     //Rest the game
-    if (e.keyCode == '27')
-    {
-        if (gameOver == true) {
-            gameOverText.visible = false;
-            //Reset the player's checker
-            player.position.set(gridImage.position.x - gridImage.width / 2, 150);
-            player.visible = true;
-            playerRow = 0;
-            //Yellow goes first
-            turns = 1;
-            player.tint = 0xffff00;
-            updateTurnText("yellow");
-            //Empty grid
-            for (let i = 0; i < maxRow; i++) {
-
-                for (j = 0; j < maxCol; j++) {
-                    boardArray[i][j].sprite.visible = false;
-                }
-            }
-            countCheckers = 0;
-            gameOver = false;
-        }
+    if (e.keyCode == '27' && gameOver == true) {
+        resetGame();
     }
 
+}
+
+function resetGame()
+{
+    //Reset the game over text
+    gameOverText.visible = false;
+    gameOverText.text = 'You connected four! Press ESC to replay!';
+    //Reset the player's checker
+    player.position.set(gridImage.position.x - gridImage.width / 2, 150);
+    player.visible = true;
+    playerRow = 0;
+  
+
+    //Empty grid
+    for (let i = 0; i < maxRow; i++) {
+
+        for (j = 0; j < maxCol; j++) {
+            boardArray[i][j].sprite.visible = false;
+        }
+    }
+    countCheckers = 0;
+    gameOver = false;
+    //Yellow goes first
+    turns = 1;
+    player.tint = 0xffff00;
+    updateTurnText("y");
+    
 }
 
 //Place a cheker in the row the player is currently over
 function insertChecker()
 {
-    countCheckers++;
     var x = playerRow;
     
     for(let y = maxCol-1; y > -1; y--)
     {
         if(boardArray[x][y].sprite.visible == false)
             {
+                countCheckers++;
                 boardArray[x][y].sprite.visible = true;
                 if(turns == 0)
                 {
@@ -265,37 +269,44 @@ function insertChecker()
                     boardArray[x][y].color = "yellow";
                 }
                 renderer.render(stage);
+                //Check to see if the player won.
                 checkForWin(x,y,boardArray[x][y].color);
+                //Update player's checker's color
+                if(turns == 0)
+                {
+                    turns =1
+                    player.tint = 0xffff00;
+                    updateTurnText("yellow");
+                }
+                else
+                {
+                    turns =0;
+                    player.tint = 0xff0000;
+                    updateTurnText("red");
+                }
                 break;
-            }
-
+            }        
     }
-    //Update player's checker's color
-    if(turns == 0)
-    {
-        turns =1
-        player.tint = 0xffff00;
-        updateTurnText("yellow");
-    }
-    else
-    {
-        turns =0;
-        player.tint = 0xff0000;
-        updateTurnText("red");
-    }
-    
+ 
+   // console.log(countCheckers);
 }
 //Check if a player has connected four
 function checkForWin (x,y,color)
-{    
-    checkSlotsBelow(x, y, color);
-    checkSlotsAcross(x, y, color);
-    checkSlotsDiagonallyLeft(x, y, color);
-    checkSlotsDiagonallyRight(x, y, color);
-
+{   
+    //There is no more space in the grid no one can win
     if (countCheckers >= 42)
     {
         gameOver = true;
+        gameOverText.text = "Game over no winner! Pres ESC to try again!";
+        
+    }
+    else{
+        //A win is determined by checking the slots around
+        //the last inserted checker
+        checkSlotsBelow(x, y, color);  
+        checkSlotsAcross(x, y, color);              
+        checkSlotsDiagonallyLeft(x, y, color);              
+        checkSlotsDiagonallyRight(x, y, color);        
     }
 
     if (gameOver) {
@@ -307,23 +318,22 @@ function checkForWin (x,y,color)
 
 
 function checkSlotsBelow(x,y,color)
-{
-    if(y >= 3)
-        return;//Can't win from this slot
-    
+{    
     var score = 1;
     //Check the next slot under last entered slot
     for (let i = y + 1; i < maxCol; i++) {
         if ((boardArray[x][i].sprite.visible == true) && (boardArray[x][i].color == color)) {
             score++;
+              if (score == 4) {
+                 gameOver = true;
+                 return;
+            }          
         }
         else
         { return; }
     }
     
-    if (score == 4) {
-        gameOver = true;
-    }
+  
 }
 
 function checkSlotsAcross(x,y,color)
@@ -362,8 +372,7 @@ function checkSlotsDiagonallyLeft(x,y,color)
     var score = 1;
     var j = y-1;
     for(let i = x-1; i > 0; i--)
-        {  
-                
+        {                
             if(j < 0)
             {
                 return;//We are at the top of the board there are no more rows
@@ -373,6 +382,7 @@ function checkSlotsDiagonallyLeft(x,y,color)
                 score++;   
                 if (score == 4) {
                     gameOver = true;
+                    console.log("Up and left");
                     return;
                 }
             } 
@@ -384,19 +394,20 @@ function checkSlotsDiagonallyLeft(x,y,color)
         }
     
      //Down and left
-    j =y+1;
-    for(i = x-1; i >= 0; i--)
+    var m =y+1;
+    for(let i = x-1; i > 0; i--)
         {          
-            if(j > 5 || j < 0)
+            if(m > maxCol-1)
             {
                 return;
             }
-            if((boardArray[i][j].sprite.visible == true) && (boardArray[i][j].color == color))
+            if((boardArray[i][m].sprite.visible == true) && (boardArray[i][m].color == color))
                 {
                    score++; 
                    if(score == 4)
                     {
                        gameOver = true;
+                        console.log("Down and left");
                         return;
                     }
                 } 
@@ -404,9 +415,9 @@ function checkSlotsDiagonallyLeft(x,y,color)
                 {
                     break;
                 }
-          j++;              
+          m++;              
         }
-       
+  
 }
 
 function checkSlotsDiagonallyRight(x,y,color)
@@ -426,6 +437,9 @@ function checkSlotsDiagonallyRight(x,y,color)
                     if(score == 4)
                     {
                         gameOver = true;
+                        console.log("Up and right");
+                        return;
+
                     }
                 } 
                 else 
@@ -435,28 +449,31 @@ function checkSlotsDiagonallyRight(x,y,color)
               j--;              
         }
      
-    j = y+1;
+    var m = y+1;
     
     for(let i = x+1; i < maxRow; i++)
     {    
-        if(j > 5)
+        if(m > maxCol-1)
         {
             return;
         }      
-        if((boardArray[i][j].sprite.visible == true) && (boardArray[i][j].color == color))
+        if((boardArray[i][m].sprite.visible == true) && (boardArray[i][m].color == color))
         {
             score++;
             if(score == 4)
             {
                 gameOver = true;
+                console.log("Down and right");
+                return;
             }
         } 
         else 
         {
             break;
         }
-      j++;              
+      m++;              
     } 
+
 }
 
 
